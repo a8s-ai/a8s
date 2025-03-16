@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: claude-environment
+  namespace: a8s
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: claude-environment
+  template:
+    metadata:
+      labels:
+        app: claude-environment
+    spec:
+      containers:
+      - name: claude-environment
+        image: a8s-poc:latest
+        imagePullPolicy: Never
+        env:
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: anthropic-credentials
+              key: api-key
+        ports:
+        - containerPort: 5900
+          name: vnc
+        - containerPort: 8501
+          name: streamlit
+        - containerPort: 6080
+          name: novnc
+        - containerPort: 8080
+          name: api
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+          limits:
+            memory: "4Gi"
+            cpu: "2"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: claude-environment-service
+  namespace: a8s
+spec:
+  selector:
+    app: claude-environment
+  ports:
+  - name: vnc
+    port: 5900
+    targetPort: 5900
+  - name: streamlit
+    port: 8501
+    targetPort: 8501
+  - name: novnc
+    port: 6080
+    targetPort: 6080
+  - name: api
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: claude-environment-ingress
+  namespace: a8s
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /streamlit
+        pathType: Prefix
+        backend:
+          service:
+            name: claude-environment-service
+            port:
+              name: streamlit
+      - path: /novnc
+        pathType: Prefix
+        backend:
+          service:
+            name: claude-environment-service
+            port:
+              name: novnc
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: claude-environment-service
+            port:
+              name: api 
