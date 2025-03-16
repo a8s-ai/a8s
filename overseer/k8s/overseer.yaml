@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: a8s
+  labels:
+    name: a8s
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: overseer-sa
+  namespace: a8s
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: overseer-role
+  namespace: a8s
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: [""]
+  resources: ["pods/log", "pods/exec"]
+  verbs: ["get", "list", "watch", "create"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: overseer-rolebinding
+  namespace: a8s
+subjects:
+- kind: ServiceAccount
+  name: overseer-sa
+  namespace: a8s
+roleRef:
+  kind: Role
+  name: overseer-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: overseer-config
+  namespace: a8s
+data:
+  OVERSEER_HOST: "0.0.0.0"
+  OVERSEER_PORT: "8000"
+  OVERSEER_LOG_LEVEL: "info"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: overseer
+  namespace: a8s
+  labels:
+    app: overseer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: overseer
+  template:
+    metadata:
+      labels:
+        app: overseer
+    spec:
+      serviceAccountName: overseer-sa
+      containers:
+      - name: overseer
+        image: overseer:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: overseer-config
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: overseer
+  namespace: a8s
+spec:
+  selector:
+    app: overseer
+  ports:
+  - port: 8000
+    targetPort: 8000
+  type: ClusterIP 
