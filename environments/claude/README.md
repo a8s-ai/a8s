@@ -30,6 +30,10 @@ Please use [this form](https://forms.gle/BT1hpBrqDPDUrCqo7) to provide feedback 
 > [!IMPORTANT]
 > The components are weakly separated: the agent loop runs in the container being controlled by Claude, can only be used by one session at a time, and must be restarted or reset between sessions if necessary.
 
+## Documentation
+
+- **[Desktop Environment FAQ](docs/desktop_environment_faq.md)**: Answers to common questions about how the desktop environment works, how Claude interacts with it, and technical details about the implementation.
+
 ## Quickstart: running the Docker container
 
 ### Anthropic API
