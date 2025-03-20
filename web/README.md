@@ -1,61 +1,168 @@
-<a href="https://chat.vercel.ai/">
-  <img alt="Next.js 14 and App Router-ready AI chatbot." src="app/(chat)/opengraph-image.png">
-  <h1 align="center">Next.js AI Chatbot</h1>
-</a>
+# A8s: AI Agent Desktop Environment Platform
 
 <p align="center">
-  An Open-Source AI Chatbot Template Built With Next.js and the AI SDK by Vercel.
+  An AI-powered platform enabling users to interact with agents through chat while providing access to remote desktop environments.
 </p>
 
 <p align="center">
+  <a href="#overview"><strong>Overview</strong></a> ·
   <a href="#features"><strong>Features</strong></a> ·
-  <a href="#model-providers"><strong>Model Providers</strong></a> ·
-  <a href="#deploy-your-own"><strong>Deploy Your Own</strong></a> ·
-  <a href="#running-locally"><strong>Running locally</strong></a>
+  <a href="#technology-stack"><strong>Technology Stack</strong></a> ·
+  <a href="#architecture"><strong>Architecture</strong></a> ·
+  <a href="#running-locally"><strong>Running Locally</strong></a> ·
+  <a href="#deployment"><strong>Deployment</strong></a>
 </p>
 <br/>
 
+## Overview
+
+A8s (Agents) is a Proof of Concept (PoC) demonstrating a web-based system that enables users to interact with AI agents through a chat interface while also providing access to remote desktop environments that the agents can control. The system allows for parallel agent operations, state preservation, and direct user intervention.
+
+The platform bridges the gap between natural language interactions with AI and visual desktop-based tasks, allowing agents to perform operations in sandboxed environments while users observe or intervene as needed.
+
 ## Features
 
-- [Next.js](https://nextjs.org) App Router
-  - Advanced routing for seamless navigation and performance
-  - React Server Components (RSCs) and Server Actions for server-side rendering and increased performance
-- [AI SDK](https://sdk.vercel.ai/docs)
-  - Unified API for generating text, structured objects, and tool calls with LLMs
-  - Hooks for building dynamic chat and generative user interfaces
-  - Supports xAI (default), OpenAI, Fireworks, and other model providers
-- [shadcn/ui](https://ui.shadcn.com)
-  - Styling with [Tailwind CSS](https://tailwindcss.com)
-  - Component primitives from [Radix UI](https://radix-ui.com) for accessibility and flexibility
-- Data Persistence
-  - [Vercel Postgres powered by Neon](https://vercel.com/storage/postgres) for saving chat history and user data
-  - [Vercel Blob](https://vercel.com/storage/blob) for efficient file storage
-- [NextAuth.js](https://github.com/nextauthjs/next-auth)
-  - Simple and secure authentication
+### Implemented Features
 
-## Model Providers
+- **Chat Interface**
+  - Next.js-based modern chat UI
+  - Support for multimodal inputs
+  - Responsive design for mobile and desktop
+  - Built with Tailwind CSS and Shadcn UI
 
-This template ships with [xAI](https://x.ai) `grok-2-1212` as the default chat model. However, with the [AI SDK](https://sdk.vercel.ai/docs), you can switch LLM providers to [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Cohere](https://cohere.com/), and [many more](https://sdk.vercel.ai/providers/ai-sdk-providers) with just a few lines of code.
+- **Interactive Desktop Environment**
+  - Remote desktop streaming embedded as artifacts in chat
+  - noVNC-based iframe integration
+  - Seamless animations between chat and desktop view
+  - Support for various URL formats from deployment results
+  - Error handling and loading states
 
-## Deploy Your Own
+### Planned Features
 
-You can deploy your own version of the Next.js AI Chatbot to Vercel with one click:
+- **Chat Agent**
+  - General chat agent that converses with the user to understand requirements
+  - Support for various storage items (documents, SaaS connections, artifacts)
+  - Handoff to overseer agent for new workflows
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fai-chatbot&env=AUTH_SECRET,OPENAI_API_KEY,XAI_API_KEY,FIREWORKS_API_KEY&envDescription=Learn%20more%20about%20how%20to%20get%20the%20API%20Keys%20for%20the%20application&envLink=https%3A%2F%2Fgithub.com%2Fvercel%2Fai-chatbot%2Fblob%2Fmain%2F.env.example&demo-title=AI%20Chatbot&demo-description=An%20Open-Source%20AI%20Chatbot%20Template%20Built%20With%20Next.js%20and%20the%20AI%20SDK%20by%20Vercel.&demo-url=https%3A%2F%2Fchat.vercel.ai&stores=[{%22type%22:%22postgres%22},{%22type%22:%22blob%22}])
+- **Overseer Agent**
+  - Decides which agent template and tools to inject into a containerized desktop environment
+  - Provisions the environment with gathered information
 
-## Running locally
+- **Agent Environment**
+  - Communication with AI agents inside each desktop environment
+  - Credentials provision for external services access
+  - Additional context and tool requests
 
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Next.js AI Chatbot. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
+- **Parallelization and Multi-session Support**
+  - Multiple concurrent agent sessions
+  - Independent parallel execution tracks
+  - Multi-user support with authentication/authorization
 
-> Note: You should not commit your `.env` file or it will expose secrets that will allow others to control access to your various AI and authentication provider accounts.
+- **Agent Control and Interaction**
+  - Ability to interrupt and redirect agent tasks
+  - Toggle between observation and direct interaction modes
+  - Handoff between agent control and user control
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. Link local instance with Vercel and GitHub accounts (creates `.vercel` directory): `vercel link`
-3. Download your environment variables: `vercel env pull`
+- **State Management**
+  - Environment state snapshots and restoration points
+  - Recovery from errors by returning to previous states
+  - Persistent state storage across sessions
 
-```bash
-pnpm install
-pnpm dev
-```
+- **Artifact Extraction/Output**
+  - Ability to extract and download outputs (PDFs, websites, etc.)
+  - Result persistence independent of environment state
 
-Your app template should now be running on [localhost:3000](http://localhost:3000/).
+## Technology Stack
+
+### Frontend
+- [Next.js](https://nextjs.org) with App Router
+- [Vercel AI SDK](https://sdk.vercel.ai/docs) for LLM integration
+- [Tailwind CSS](https://tailwindcss.com) and [Shadcn UI](https://ui.shadcn.com) for styling
+- [noVNC](https://novnc.com) WebSocket-based VNC client for remote desktop
+- React Context + SWR for state management
+- [NextAuth.js](https://next-auth.js.org) for authentication
+
+### Backend (Planned)
+- FastAPI microservices
+- Server-Sent Events (SSE) for chat streaming
+- WebSockets for remote desktop interactions
+- Agno framework for AI agent orchestration
+- Kubernetes with custom operator for container orchestration
+
+### Data Layer (Planned)
+- PostgreSQL for metadata and persistence
+- Redis for session management
+- Persistent volumes for environment state
+
+## Architecture
+
+The system is designed with a microservices architecture:
+
+### Microservices
+- **Auth Service**: User authentication and session management
+- **Agent Service**: Chat processing and task analysis
+- **Environment Orchestrator (Overseer)**: Desktop environment management
+- **Streaming Service**: noVNC proxy for browser-based VNC access
+- **State Management Service**: Environment state snapshots and recovery
+
+### Component Interaction
+1. **Chat and Environment Coordination**
+   - User → Chat Interface → Agent Service → Task Analysis → Environment Orchestrator
+   
+2. **Desktop Interaction Flow**
+   - Agent Instruction → Agno Framework → Desktop Actions → VNC/RDP Protocol → User
+
+3. **State Management Flow**
+   - Snapshot Trigger → Environment Orchestrator → Container Snapshot → Persistent Storage
+
+## Running Locally
+
+### Prerequisites
+- Node.js 18+ and npm/pnpm
+- Docker (for local development of containerized environments)
+
+### Installation
+
+1. Clone the repository
+   ```bash
+   git clone https://github.com/a8s-ai/a8s.git
+   cd a8s
+   ```
+
+2. Install dependencies
+   ```bash
+   npm install
+   # or
+   pnpm install
+   ```
+
+3. Set up environment variables
+   ```bash
+   cp .env.example .env.local
+   ```
+   Edit `.env.local` with your configuration values.
+
+4. Start the development server
+   ```bash
+   npm run dev
+   # or
+   pnpm dev
+   ```
+
+The application should now be running on [localhost:3000](http://localhost:3000/).
+
+## Deployment
+
+### Vercel Deployment
+
+You can deploy the frontend to Vercel with one click:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fa8s-ai%2Fa8s)
+
+### Kubernetes Deployment (Planned)
+
+The complete system with backend services will support Kubernetes deployment. Documentation for this will be available once implemented.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

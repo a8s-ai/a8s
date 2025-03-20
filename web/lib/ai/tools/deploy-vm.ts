@@ -17,7 +17,7 @@ export const deployVM = tool({
       throw new Error('Overseer agent is not configured');
     }
 
-    const response = await fetch(`${overseerEndpoint}`, {
+    const response = await fetch(`${overseerEndpoint}/deployments`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

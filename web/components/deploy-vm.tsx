@@ -39,7 +39,7 @@ export function DeployVMRequest({ args }: { args: DeploymentRequest }) {
       <CardHeader className="p-4 pb-2">
         <div className="flex justify-between items-center">
           <CardTitle className="text-sm flex items-center gap-2">
-            <Server className="h-3.5 w-3.5" />
+            <Server className="size-3.5" />
             VM Deployment
           </CardTitle>
           <Button disabled className="bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 hidden md:flex py-1.5 px-2 h-fit md:h-[34px] order-4 md:ml-auto text-xs">
@@ -55,7 +55,7 @@ export function DeployVMRequest({ args }: { args: DeploymentRequest }) {
             <p className="mt-1 text-muted-foreground line-clamp-2">{args.requirement}</p>
         </div>
       </CardContent>
-      <CardFooter className="border-t bg-muted/50 pt-2 pb-2 px-4">
+      <CardFooter className="border-t bg-muted/50 py-2 px-4">
         <div className="w-full flex justify-between items-center text-xs text-muted-foreground">
           <div>Initializing deployment...</div>
           <div>Environment: {args.environment_type}</div>
@@ -129,7 +129,7 @@ export function DeployVMResult({ result }: { result: DeploymentResponse }) {
       <CardHeader className="p-4 pb-2">
         <div className="flex justify-between items-start">
           <CardTitle className="text-sm flex items-center gap-2">
-            <Server className="h-3.5 w-3.5" />
+            <Server className="size-3.5" />
             VM Deployment
           </CardTitle>
           <Button 
@@ -160,7 +160,7 @@ export function DeployVMResult({ result }: { result: DeploymentResponse }) {
           
         </div>
       </CardContent>
-      <CardFooter className="border-t bg-muted/50 pt-2 pb-2 px-4">
+      <CardFooter className="border-t bg-muted/50 py-2 px-4">
         <div className="w-full text-xs text-muted-foreground">
           Deployment ID: {result.id}
         </div>
@@ -201,7 +201,7 @@ export function DeployVM({
           <Skeleton className="h-4 w-2/3" />
         </div>
       </CardContent>
-      <CardFooter className="border-t pt-2 pb-2 px-6">
+      <CardFooter className="border-t py-2 px-6">
         <Skeleton className="h-4 w-full" />
       </CardFooter>
     </Card>
