@@ -196,6 +196,7 @@ class KubernetesClient:
         container = client.V1Container(
             name=deployment_id,
             image=f"a8s-{environment_type}:latest",
+            image_pull_policy="Never",
             env=env_vars,
             ports=[
                 client.V1ContainerPort(container_port=6080, name="novnc"),
