@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: claude-environment
-        image: a8s-poc:latest
+        image: a8s-claude:latest
         imagePullPolicy: Never
         env:
         - name: ANTHROPIC_API_KEY
