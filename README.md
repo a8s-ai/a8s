@@ -1,4 +1,4 @@
-# A8s: AI Agent Desktop Environment Platform
+<h1 align="center"> A8s: AI Agent Desktop Environment Platform </h1>
 
 <p align="center">
   An AI-powered platform enabling users to interact with agents through chat while providing access to remote desktop environments.
