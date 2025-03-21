@@ -27,6 +27,7 @@ OVERSEER_PORT = 8000
 OVERSEER_URL = f"http://{OVERSEER_HOST}:{OVERSEER_PORT}"
 NAMESPACE = "a8s"
 TEST_TIMEOUT = 300  # seconds
+DOCKER_IMAGE_NAME="a8s-claude:latest"
 
 
 class Colors:
@@ -111,6 +112,37 @@ def run_command(command: List[str], check: bool = True, timeout: int = 60) -> Tu
         print_error(f"Command timed out after {timeout} seconds: {' '.join(command)}")
         return 1, "", f"Command timed out after {timeout} seconds"
 
+
+def build_and_load_docker_image() -> bool:
+    """Build and load the Docker image for the claude environment into Minikube.
+    
+    Returns:
+        True if the image was built and loaded successfully, False otherwise.
+    """
+    print_step("Building and loading Docker image for claude environment")
+    
+    try:
+        build_script = "../k8s/build-local-image.sh"
+        print("Building Docker image...")
+        exit_code, stdout, stderr = run_command(build_script, check=True)
+        if exit_code != 0:
+            print_error(f"Error building Docker image: {stderr}")
+            return False
+        print_success("Docker image built successfully")
+        
+        build_script = "../k8s/setup-minikube.sh"
+        print("Running Minikube loading...")
+        exit_code, stdout, stderr = run_command(build_script, check=True)
+        if exit_code != 0:
+            print_error(f"Error Pushing Docker image: {stderr}")
+            return False
+
+        print_success("Docker image loaded into Minikube successfully")
+        return True
+
+    except Exception as e:
+        print_error(f"Error building and loading Docker image: {e}")
+        return False
 
 def check_minikube() -> bool:
     """Check if minikube is running.
@@ -664,6 +696,10 @@ def main() -> int:
         if not create_namespace():
             return 1
     
+    # Build and load the Docker image for the claude environment into Minikube
+    if not build_and_load_docker_image():
+        return 1
+    
     # Deploy the Overseer service to Minikube
     port_forward_pid = deploy_overseer()
     if not port_forward_pid:
@@ -688,7 +724,6 @@ def main() -> int:
     finally:
         # Clean up the Overseer deployment
         cleanup_overseer(port_forward_pid)
-
 
 if __name__ == "__main__":
     sys.exit(main()) 

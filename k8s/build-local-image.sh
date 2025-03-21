@@ -18,8 +18,8 @@ if [ ! -f "../environments/claude/Dockerfile" ]; then
 fi
 
 # Build the Docker image
-echo "Building Docker image 'a8s-poc' from ../environments/claude/Dockerfile..."
-docker build -t a8s-poc:latest -f ../environments/claude/Dockerfile ../environments/claude
+echo "Building Docker image 'a8s-claude' from ../environments/claude/Dockerfile..."
+docker build -t a8s-claude:latest -f ../environments/claude/Dockerfile ../environments/claude
 
-echo "Docker image 'a8s-poc:latest' built successfully!"
+echo "Docker image 'a8s-claude:latest' built successfully!"
 echo "You can now run ./setup-minikube.sh to set up the Kubernetes infrastructure." 

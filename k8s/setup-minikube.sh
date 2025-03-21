@@ -25,8 +25,8 @@ if ! command -v docker &> /dev/null; then
 fi
 
 # Check if the local image exists
-if ! docker image inspect a8s-poc:latest &> /dev/null; then
-    echo "Error: Local Docker image 'a8s-poc:latest' not found."
+if ! docker image inspect a8s-claude:latest &> /dev/null; then
+    echo "Error: Local Docker image 'a8s-claude:latest' not found."
     echo "Please build the image first."
     exit 1
 fi
@@ -36,8 +36,8 @@ echo "Starting minikube cluster..."
 minikube start --cpus=4 --memory=8192 --disk-size=20g
 
 # Load the local Docker image into minikube
-echo "Loading local Docker image 'a8s-poc:latest' into minikube..."
-minikube image load a8s-poc:latest
+echo "Loading local Docker image 'a8s-claude:latest' into minikube..."
+minikube image load a8s-claude:latest
 
 # Enable necessary addons
 echo "Enabling necessary addons..."
