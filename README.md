@@ -20,6 +20,15 @@ A8s (Agents) is a Proof of Concept (PoC) demonstrating a web-based system that e
 
 The platform bridges the gap between natural language interactions with AI and visual desktop-based tasks, allowing agents to perform operations in sandboxed environments while users observe or intervene as needed.
 
+## Project Structure
+
+The project is organized into several key components:
+
+- **`/web`**: Next.js frontend application with chat interface and remote desktop embedding
+- **`/overseer`**: FastAPI service for managing Kubernetes deployments of agent environments
+- **`/environments`**: Docker environments for AI agents (including Claude)
+- **`/k8s`**: Kubernetes deployment configurations
+
 ## Features
 
 ### Implemented Features
@@ -78,18 +87,17 @@ The platform bridges the gap between natural language interactions with AI and v
 - [Next.js](https://nextjs.org) with App Router
 - [Vercel AI SDK](https://sdk.vercel.ai/docs) for LLM integration
 - [Tailwind CSS](https://tailwindcss.com) and [Shadcn UI](https://ui.shadcn.com) for styling
-- [noVNC](https://novnc.com) WebSocket-based VNC client for remote desktop
 - React Context + SWR for state management
 - [NextAuth.js](https://next-auth.js.org) for authentication
 
-### Backend (Planned)
+### Backend
 - FastAPI microservices
 - Server-Sent Events (SSE) for chat streaming
 - WebSockets for remote desktop interactions
 - Agno framework for AI agent orchestration
 - Kubernetes with custom operator for container orchestration
 
-### Data Layer (Planned)
+### Data Layer
 - PostgreSQL for metadata and persistence
 - Redis for session management
 - Persistent volumes for environment state
@@ -119,14 +127,16 @@ The system is designed with a microservices architecture:
 
 ### Prerequisites
 - Node.js 18+ and npm/pnpm
-- Docker (for local development of containerized environments)
+- Python 3.11+
+- Docker
+- Kubernetes cluster or minikube for local development
+- uv (for Python dependency management)
 
-### Installation
+### Web Frontend
 
-1. Clone the repository
+1. Navigate to the web directory
    ```bash
-   git clone https://github.com/a8s-ai/a8s.git
-   cd a8s
+   cd web
    ```
 
 2. Install dependencies
@@ -149,19 +159,87 @@ The system is designed with a microservices architecture:
    pnpm dev
    ```
 
-The application should now be running on [localhost:3000](http://localhost:3000/).
+The web application should now be running on [localhost:3000](http://localhost:3000/).
+
+### Overseer Service
+
+1. Navigate to the overseer directory
+   ```bash
+   cd overseer
+   ```
+
+2. Install dependencies using uv
+   ```bash
+   # Install base dependencies
+   uv pip install -e .
+
+   # Install development dependencies
+   uv pip install -e ".[dev]"
+
+   # Install test dependencies
+   uv pip install -e ".[test]"
+   ```
+
+3. Run the service
+   ```bash
+   python run.py
+   ```
+
+The Overseer API should now be running on [localhost:8000](http://localhost:8000/) with documentation available at [localhost:8000/docs](http://localhost:8000/docs).
+
+### Environment Setup
+
+For local testing with minikube:
+
+1. Start minikube
+   ```bash
+   minikube start
+   ```
+
+2. Deploy to minikube
+   ```bash
+   cd overseer
+   ./deploy_to_minikube.sh
+   ```
 
 ## Deployment
 
-### Vercel Deployment
+### Vercel Deployment (Web Frontend)
 
 You can deploy the frontend to Vercel with one click:
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fa8s-ai%2Fa8s)
 
-### Kubernetes Deployment (Planned)
+### Kubernetes Deployment
 
-The complete system with backend services will support Kubernetes deployment. Documentation for this will be available once implemented.
+For production deployment:
+
+1. Build and push container images
+   ```bash
+   # Build the Overseer image
+   cd overseer
+   docker build -t your-registry/overseer:latest .
+   docker push your-registry/overseer:latest
+   
+   # Build environment images
+   cd environments/claude
+   docker build -t your-registry/claude-env:latest .
+   docker push your-registry/claude-env:latest
+   ```
+
+2. Deploy using Kubernetes manifests
+   ```bash
+   # Apply base configurations
+   kubectl apply -f k8s/namespace.yaml
+   
+   # Deploy Overseer
+   kubectl apply -f overseer/k8s/
+   
+   # Deploy other required services
+   kubectl apply -f k8s/
+   ```
+
+Detailed deployment documentation will continue to evolve as the project develops.
 
 ## License
 
