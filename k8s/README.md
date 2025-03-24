@@ -7,7 +7,7 @@ This directory contains scripts and configuration files for setting up the Kuber
 - [minikube](https://minikube.sigs.k8s.io/docs/start/)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - [Docker](https://docs.docker.com/get-docker/)
-- Local Docker image `a8s-poc:latest`
+- Local Docker image `a8s-claude:latest`
 - Anthropic API key
 
 ## Setup Instructions
@@ -18,7 +18,7 @@ This directory contains scripts and configuration files for setting up the Kuber
    ./build-local-image.sh
    ```
 
-   This script will build the Docker image `a8s-poc:latest` from the Dockerfile in the `../environments/claude/` directory.
+   This script will build the Docker image `a8s-claude:latest` from the Dockerfile in the `../environments/claude/` directory.
 
 2. **Start minikube and set up the infrastructure**:
 
@@ -28,7 +28,7 @@ This directory contains scripts and configuration files for setting up the Kuber
 
    This script will:
    - Start minikube with appropriate resources
-   - Load the local Docker image `a8s-poc:latest` into minikube
+   - Load the local Docker image `a8s-claude:latest` into minikube
    - Enable necessary addons (ingress, storage-provisioner, metrics-server)
    - Create the a8s namespace
    - Set up a basic storage class
