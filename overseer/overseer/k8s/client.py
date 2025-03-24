@@ -191,7 +191,7 @@ class KubernetesClient:
         # Add data as individual environment variables
         for key, value in data.items():
             env_vars.append(client.V1EnvVar(name=f"DATA_{key.upper()}", value=value))
-        
+
         # Create container
         container = client.V1Container(
             name=deployment_id,
