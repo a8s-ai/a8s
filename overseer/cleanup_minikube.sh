@@ -26,6 +26,6 @@ kubectl delete -f k8s/overseer.yaml --ignore-not-found=true
 
 # Optionally, delete the namespace (uncomment if you want to delete the namespace)
 # echo "Deleting a8s namespace..."
-# kubectl delete namespace a8s --ignore-not-found=true
+kubectl delete namespace a8s --ignore-not-found=true
 
 echo "Cleanup completed." 
