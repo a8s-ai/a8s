@@ -3,6 +3,7 @@ Deployment API endpoints.
 """
 
 import logging
+import os
 from datetime import datetime
 from typing import Dict, List, Optional
 
@@ -23,6 +24,8 @@ router = APIRouter(prefix="/deployments", tags=["deployments"])
 
 # In-memory storage for deployments (in a production environment, this would be a database)
 deployments: Dict[str, DeploymentResponse] = {}
+
+BASE_DOMAIN = os.getenv("BASE_DOMAIN", "cluster.local")
 
 
 def get_k8s_client() -> KubernetesClient:
@@ -85,6 +88,53 @@ async def create_deployment(
             detail=f"Error creating deployment: {str(e)}",
         )
 
+@router.get(
+    "/all",
+    response_model=List[DeploymentResponse],
+    summary="Get all deployments.",
+    description="Get a list of all deployments with optional status filter.",
+)
+async def get_all_deployments(
+    status: Optional[DeploymentStatus] = None,
+    k8s_client: KubernetesClient = Depends(get_k8s_client)
+) -> List[DeploymentResponse]:
+    """Get all deployments.
+
+    Args:
+        status: Optional status filter
+        k8s_client: The Kubernetes client.
+
+    Returns:
+        List of deployment responses.
+    """
+    result = []
+    
+    for deployment_id, deployment in deployments.items():
+        # Update status from Kubernetes
+        k8s_status = k8s_client.get_deployment_status(deployment_id)
+        deployment.status = k8s_status
+
+        # Update message based on status
+        if k8s_status == DeploymentStatus.RUNNING:
+            deployment.message = "Deployment is running"
+            if not deployment.connection_details:
+                deployment.connection_details = {
+                    "service_url": f"http://{deployment_id}.{k8s_client.namespace}.svc.cluster.local",
+                    "ingress_host": f"{deployment_id}.{BASE_DOMAIN}",
+                    "novnc_port": "6080",
+                }
+        elif k8s_status == DeploymentStatus.CREATING:
+            deployment.message = "Deployment is being created"
+        elif k8s_status == DeploymentStatus.FAILED:
+            deployment.message = "Deployment failed"
+        elif k8s_status == DeploymentStatus.TERMINATED:
+            deployment.message = "Deployment has been terminated"
+
+        # Add to result if status matches filter or no filter
+        if not status or deployment.status == status:
+            result.append(deployment)
+
+    return result
 
 @router.get(
     "/{deployment_id}",
@@ -277,4 +327,4 @@ async def delete_deployment(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error deleting deployment: {str(e)}",
-        ) 
+        )
