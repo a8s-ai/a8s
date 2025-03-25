@@ -24,20 +24,29 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
-# Check if the local image exists
-if ! docker image inspect a8s-claude:latest &> /dev/null; then
-    echo "Error: Local Docker image 'a8s-claude:latest' not found."
-    echo "Please build the image first."
-    exit 1
-fi
+# Check if the local images exist
+check_docker_images() {
+    local images=("a8s-claude:latest" "overseer:latest")
+    for image in "${images[@]}"; do
+        if ! docker image inspect "$image" &> /dev/null; then
+            echo "Error: Local Docker image '$image' not found."
+            echo "Please build the images first using ./build-local.sh"
+            exit 1
+        fi
+    done
+}
+
+# Run image check
+check_docker_images
 
 # Start minikube with appropriate resources
 echo "Starting minikube cluster..."
 minikube start --cpus=4 --memory=8192 --disk-size=20g
 
-# Load the local Docker image into minikube
-echo "Loading local Docker image 'a8s-claude:latest' into minikube..."
+# Load the local Docker images into minikube
+echo "Loading local Docker images into minikube..."
 minikube image load a8s-claude:latest
+minikube image load overseer:latest
 
 # Enable necessary addons
 echo "Enabling necessary addons..."
@@ -68,5 +77,3 @@ EOF
 echo "Minikube setup complete!"
 echo "Cluster status:"
 minikube status
-
-echo "To access the Kubernetes dashboard, run: minikube dashboard" 
