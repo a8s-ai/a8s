@@ -219,6 +219,9 @@ The project is designed to be deployed using Docker and Kubernetes (Minikube). F
    # Navigate to k8s directory
    cd k8s
 
+   # Create empty GitHub credentials file
+   touch ../environments/claude/.github-credentials
+
    # Build Docker images (web app and Claude environment)
    ./build-local-image.sh
 

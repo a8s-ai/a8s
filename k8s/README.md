@@ -11,7 +11,13 @@ This directory contains scripts and configuration files for setting up the Kuber
 
 ## Setup Instructions
 
-1. **Build the local Docker image**:
+1. **Prepare environment**:
+   ```bash
+   # Create empty GitHub credentials file (required for Claude environment)
+   touch environments/claude/.github-credentials
+   ```
+
+2. **Build the local Docker image**:
 
    ```bash
    ./build-local-image.sh
@@ -21,7 +27,7 @@ This directory contains scripts and configuration files for setting up the Kuber
    - `a8s-claude:latest` from the Dockerfile in `../environments/claude/`
    - `a8s-web:latest` from the Dockerfile in `../web/`
 
-2. **Start minikube and set up the infrastructure**:
+3. **Start minikube and set up the infrastructure**:
 
    ```bash
    ./setup-minikube.sh
@@ -34,7 +40,7 @@ This directory contains scripts and configuration files for setting up the Kuber
    - Create the a8s namespace
    - Set up a basic storage class
 
-3. **Create secrets and configuration**:
+4. **Create secrets and configuration**:
 
    ```bash
    # Set up your Anthropic API key
@@ -47,7 +53,7 @@ This directory contains scripts and configuration files for setting up the Kuber
    ./create-secret.sh
    ```
 
-4. **Deploy the applications**:
+5. **Deploy the applications**:
 
    ```bash
    # Deploy the Claude environment
@@ -57,7 +63,7 @@ This directory contains scripts and configuration files for setting up the Kuber
    kubectl apply -f web-deployment.yaml
    ```
 
-5. **Check the deployment status**:
+6. **Check the deployment status**:
 
    ```bash
    kubectl get pods -n a8s
@@ -65,7 +71,7 @@ This directory contains scripts and configuration files for setting up the Kuber
    kubectl get ingress -n a8s
    ```
 
-6. **Access the services**:
+7. **Access the services**:
 
    To access the services, you need to get the minikube IP:
 
