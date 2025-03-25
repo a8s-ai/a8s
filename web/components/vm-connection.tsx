@@ -48,29 +48,29 @@ function PureVMConnection() {
     if (!vmConnection.vncUrl) {
       return {
         isValidUrl: false,
-        errorMessage: "No VNC URL provided. Please try connecting again.",
+        errorMessage: 'No VNC URL provided. Please try connecting again.',
       };
     }
 
     try {
       const url = new URL(vmConnection.vncUrl);
       const isHttp = url.protocol === 'http:' || url.protocol === 'https:';
-      
+
       if (!isHttp) {
         return {
           isValidUrl: false,
-          errorMessage: "Invalid URL protocol. Must be http or https.",
+          errorMessage: 'Invalid URL protocol. Must be http or https.',
         };
       }
-      
+
       return {
         isValidUrl: true,
-        errorMessage: "",
+        errorMessage: '',
       };
     } catch (e) {
       return {
         isValidUrl: false,
-        errorMessage: "Invalid URL format. Please try connecting again.",
+        errorMessage: 'Invalid URL format. Please try connecting again.',
       };
     }
   }, [vmConnection.vncUrl]);
@@ -202,28 +202,45 @@ function PureVMConnection() {
                 <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
                   <div className="flex flex-col items-center gap-2">
                     <div className="size-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                    <div className="text-sm text-muted-foreground">Loading VM interface...</div>
-                  </div>
-                </div>
-              )}
-              
-              {(!isValidUrl || hasIframeError) && (
-                <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
-                  <div className="flex flex-col items-center gap-2 max-w-md text-center p-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-8 text-destructive">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                    </svg>
-                    <div className="text-base font-medium">Failed to load VM interface</div>
                     <div className="text-sm text-muted-foreground">
-                      {!isValidUrl ? errorMessage : "Make sure the VM is running properly and try again."}
+                      Loading VM interface...
                     </div>
                   </div>
                 </div>
               )}
-              
+
+              {(!isValidUrl || hasIframeError) && (
+                <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
+                  <div className="flex flex-col items-center gap-2 max-w-md text-center p-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="size-8 text-destructive"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                      />
+                    </svg>
+                    <div className="text-base font-medium">
+                      Failed to load VM interface
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {!isValidUrl
+                        ? errorMessage
+                        : 'Make sure the VM is running properly and try again.'}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {isValidUrl && (
-                <iframe 
-                  src={vmConnection.vncUrl} 
+                <iframe
+                  src={vmConnection.vncUrl}
                   title="VM Interface"
                   className="size-full border-0"
                   sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
@@ -240,4 +257,4 @@ function PureVMConnection() {
   );
 }
 
-export const VMConnection = memo(PureVMConnection); 
+export const VMConnection = memo(PureVMConnection);

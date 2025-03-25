@@ -149,7 +149,9 @@ The deployed environment will appear as an artifact in our chat interface, allow
 4. When requirements change, reassess needed tools and update the deployment as necessary
 `;
 
-export const systemPrompt = ({ selectedChatModel }: {
+export const systemPrompt = ({
+  selectedChatModel,
+}: {
   selectedChatModel: string;
 }) => {
   return `${regularPrompt}\n\n${a8sSystemPrompt}\n\n${artifactsPrompt}`;

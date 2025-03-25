@@ -18,22 +18,26 @@ function PureSuggestedActions({ chatId, append }: SuggestedActionsProps) {
     {
       title: 'What is Agent8s and',
       label: 'how does it work?',
-      action: 'What is Agent8s and how does the system work with AI agents and remote desktop environments?',
+      action:
+        'What is Agent8s and how does the system work with AI agents and remote desktop environments?',
     },
     {
       title: 'What are the key features',
       label: 'of Agent8s?',
-      action: 'What are the key features and capabilities of Agent8s, including agent control, state management, and artifact handling?',
+      action:
+        'What are the key features and capabilities of Agent8s, including agent control, state management, and artifact handling?',
     },
     {
       title: 'Help me automate',
       label: 'my data analysis workflow',
-      action: 'I need help setting up an automated data analysis workflow using Agent8s with Python and visualization tools',
+      action:
+        'I need help setting up an automated data analysis workflow using Agent8s with Python and visualization tools',
     },
     {
       title: 'Set up a development',
       label: 'environment for my team',
-      action: 'I want to create a development environment for my team with specific tools and configurations using Agent8s',
+      action:
+        'I want to create a development environment for my team with specific tools and configurations using Agent8s',
     },
   ];
 

@@ -2,7 +2,7 @@ import { compare } from 'bcrypt-ts';
 import NextAuth, { type User, type Session } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 
-import { getUser } from '@/lib/db/queries';
+import { getUser, getUserById } from '@/lib/db/queries';
 
 import { authConfig } from './auth.config';
 
@@ -35,7 +35,6 @@ export const {
       if (user) {
         token.id = user.id;
       }
-
       return token;
     },
     async session({
@@ -47,6 +46,10 @@ export const {
     }) {
       if (session.user) {
         session.user.id = token.id as string;
+        const [user] = await getUserById(token.id as string);
+        if (user) {
+          session.user.role = user.role;
+        }
       }
 
       return session;

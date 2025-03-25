@@ -43,6 +43,27 @@
       "when": 1741934630596,
       "tag": "0005_wooden_whistler",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1742876994961,
+      "tag": "0006_white_christian_walker",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1742883248359,
+      "tag": "0007_freezing_miss_america",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1742883562154,
+      "tag": "0008_giant_secret_warriors",
+      "breakpoints": true
     }
   ]
 }
