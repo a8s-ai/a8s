@@ -7,7 +7,6 @@ This directory contains scripts and configuration files for setting up the Kuber
 - [minikube](https://minikube.sigs.k8s.io/docs/start/)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - [Docker](https://docs.docker.com/get-docker/)
-- Local Docker image `a8s-claude:latest`
 - Anthropic API key
 
 ## Setup Instructions
@@ -18,7 +17,9 @@ This directory contains scripts and configuration files for setting up the Kuber
    ./build-local-image.sh
    ```
 
-   This script will build the Docker image `a8s-claude:latest` from the Dockerfile in the `../environments/claude/` directory.
+   This script will build:
+   - `a8s-claude:latest` from the Dockerfile in `../environments/claude/`
+   - `a8s-web:latest` from the Dockerfile in `../web/`
 
 2. **Start minikube and set up the infrastructure**:
 
@@ -28,22 +29,32 @@ This directory contains scripts and configuration files for setting up the Kuber
 
    This script will:
    - Start minikube with appropriate resources
-   - Load the local Docker image `a8s-claude:latest` into minikube
+   - Load both Docker images into minikube
    - Enable necessary addons (ingress, storage-provisioner, metrics-server)
    - Create the a8s namespace
    - Set up a basic storage class
 
-3. **Create the Anthropic API key secret**:
+3. **Create secrets and configuration**:
 
    ```bash
+   # Set up your Anthropic API key
    export ANTHROPIC_API_KEY=your_api_key
+
+   # Optional: Create .env.production for web application secrets
+   # Copy your web environment variables to ../web/.env.production
+
+   # Create secrets and config maps
    ./create-secret.sh
    ```
 
-4. **Deploy the Claude environment**:
+4. **Deploy the applications**:
 
    ```bash
+   # Deploy the Claude environment
    kubectl apply -f claude-deployment.yaml
+
+   # Deploy the web application
+   kubectl apply -f web-deployment.yaml
    ```
 
 5. **Check the deployment status**:
@@ -63,6 +74,7 @@ This directory contains scripts and configuration files for setting up the Kuber
    ```
 
    Then, you can access the services at:
+   - Web App: http://<minikube-ip>/
    - Streamlit: http://<minikube-ip>/streamlit
    - noVNC: http://<minikube-ip>/novnc
    - API: http://<minikube-ip>/api
@@ -70,19 +82,45 @@ This directory contains scripts and configuration files for setting up the Kuber
    Alternatively, you can use port forwarding:
 
    ```bash
+   # For web application
+   kubectl port-forward service/web-service 3000:3000 -n a8s
+
+   # For Claude environment
    kubectl port-forward service/claude-environment-service 8501:8501 6080:6080 8080:8080 -n a8s
    ```
 
    Then access:
+   - Web App: http://localhost:3000
    - Streamlit: http://localhost:8501
    - noVNC: http://localhost:6080
    - API: http://localhost:8080
+
+## Development Workflow
+
+When making changes to the applications:
+
+1. Make your changes in the respective directories (`web/` or `environments/claude/`)
+2. Rebuild the Docker images:
+   ```bash
+   ./build-local-image.sh
+   ```
+3. Load the new images into minikube:
+   ```bash
+   minikube image load a8s-web:latest
+   minikube image load a8s-claude:latest
+   ```
+4. Restart the deployments:
+   ```bash
+   kubectl rollout restart deployment web-deployment -n a8s
+   kubectl rollout restart deployment claude-deployment -n a8s
+   ```
 
 ## Cleanup
 
 To clean up the resources:
 
 ```bash
+kubectl delete -f web-deployment.yaml
 kubectl delete -f claude-deployment.yaml
 minikube stop
 ```

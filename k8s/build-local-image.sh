@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Building local Docker image for a8s..."
+echo "Building local Docker images for a8s..."
 
 # Check if Docker is installed
 if ! command -v docker &> /dev/null; then
@@ -17,9 +17,20 @@ if [ ! -f "../environments/claude/Dockerfile" ]; then
     exit 1
 fi
 
-# Build the Docker image
+# Check if the Web Dockerfile exists
+if [ ! -f "../web/Dockerfile" ]; then
+    echo "Error: Dockerfile not found in ../web/"
+    echo "Please make sure you're running this script from the k8s directory."
+    exit 1
+fi
+
+# Build the Claude environment image
 echo "Building Docker image 'a8s-claude' from ../environments/claude/Dockerfile..."
 docker build -t a8s-claude:latest -f ../environments/claude/Dockerfile ../environments/claude
 
-echo "Docker image 'a8s-claude:latest' built successfully!"
+# Build the web application image
+echo "Building Docker image 'a8s-web' from ../web/Dockerfile..."
+docker build -t a8s-web:latest -f ../web/Dockerfile ../web
+
+echo "Docker images built successfully!"
 echo "You can now run ./setup-minikube.sh to set up the Kubernetes infrastructure." 

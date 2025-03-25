@@ -204,42 +204,52 @@ For local testing with minikube:
 
 ## Deployment
 
-### Vercel Deployment (Web Frontend)
+The project is designed to be deployed using Docker and Kubernetes (Minikube). For detailed deployment instructions, see the [`k8s`](./k8s) directory.
 
-You can deploy the frontend to Vercel with one click:
+### Quick Start with Minikube
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fa8s-ai%2Fa8s)
+1. **Prerequisites**:
+   - [Docker](https://docs.docker.com/get-docker/)
+   - [Minikube](https://minikube.sigs.k8s.io/docs/start/)
+   - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+   - Anthropic API key
 
-### Kubernetes Deployment
-
-For production deployment:
-
-1. Build and push container images
+2. **Setup and Deploy**:
    ```bash
-   # Build the Overseer image
-   cd overseer
-   docker build -t your-registry/overseer:latest .
-   docker push your-registry/overseer:latest
-   
-   # Build environment images
-   cd environments/claude
-   docker build -t your-registry/claude-env:latest .
-   docker push your-registry/claude-env:latest
+   # Navigate to k8s directory
+   cd k8s
+
+   # Build Docker images (web app and Claude environment)
+   ./build-local-image.sh
+
+   # Start Minikube and set up infrastructure
+   ./setup-minikube.sh
+
+   # Set up secrets and configuration
+   export ANTHROPIC_API_KEY=your_api_key
+   ./create-secret.sh
+
+   # Deploy web application
+   kubectl apply -f web-deployment.yaml
    ```
 
-2. Deploy using Kubernetes manifests
+3. **Access the Application**:
    ```bash
-   # Apply base configurations
-   kubectl apply -f k8s/namespace.yaml
-   
-   # Deploy Overseer
-   kubectl apply -f overseer/k8s/
-   
-   # Deploy other required services
-   kubectl apply -f k8s/
+   # Get Minikube IP
+   minikube ip
    ```
+   Access the services at:
+   - Web App: `http://<minikube-ip>/`
 
-Detailed deployment documentation will continue to evolve as the project develops.
+   Alternatively, use port forwarding for local access:
+   ```bash
+   # For web application
+   kubectl port-forward service/web-service 3000:3000 -n a8s
+   ```
+   Then access:
+   - Web App: `http://localhost:3000`
+
+For detailed instructions, environment setup, development workflow, and cleanup procedures, refer to the [k8s/README.md](./k8s/README.md) file.
 
 ## License
 
