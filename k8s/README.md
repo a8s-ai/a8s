@@ -39,14 +39,20 @@ This directory contains scripts and configuration files for setting up the Kuber
    export ANTHROPIC_API_KEY=your_api_key
    ./create-secret.sh
    ```
+4. **Create the Storage Class, PV and PVC**:
 
-4. **Deploy the Claude environment**:
+   ```bash
+   Create Storage Class, PV and PVC to persist the data
+   ./setup-pv-and-pvc.sh
+   ```
+
+5. **Deploy the Claude environment**:
 
    ```bash
    kubectl apply -f claude-deployment.yaml
    ```
 
-5. **Check the deployment status**:
+6. **Check the deployment status**:
 
    ```bash
    kubectl get pods -n a8s
@@ -54,7 +60,14 @@ This directory contains scripts and configuration files for setting up the Kuber
    kubectl get ingress -n a8s
    ```
 
-6. **Access the services**:
+7. **Copy required data to the persistant folder**:
+
+   ```bash
+   kubectl get pods -n a8s
+   kubectl cp <name-of-file-to-copy/name-of-folder-to-copy> <claude-pod-name>:/data/
+   ```
+
+8. **Access the services**:
 
    To access the services, you need to get the minikube IP:
 
@@ -83,12 +96,13 @@ This directory contains scripts and configuration files for setting up the Kuber
 To clean up the resources:
 
 ```bash
-kubectl delete -f claude-deployment.yaml
-minikube stop
+   kubectl delete -f claude-deployment.yaml
+   minikube ssh "rm -rf /home/docker/data"
+   minikube stop
 ```
 
 To completely delete the minikube cluster:
 
 ```bash
-minikube delete
+   minikube delete
 ``` 
