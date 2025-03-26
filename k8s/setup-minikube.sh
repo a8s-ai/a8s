@@ -33,7 +33,7 @@ fi
 
 # Start minikube with appropriate resources
 echo "Starting minikube cluster..."
-minikube start --cpus=4 --memory=8192 --disk-size=20g
+minikube start
 
 # Load the local Docker image into minikube
 echo "Loading local Docker image 'a8s-claude:latest' into minikube..."
@@ -51,19 +51,6 @@ kubectl create namespace a8s --dry-run=client -o yaml | kubectl apply -f -
 
 # Set the default namespace for kubectl
 kubectl config set-context --current --namespace=a8s
-
-# Create a basic storage class
-echo "Creating storage class..."
-cat <<EOF | kubectl apply -f -
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: a8s-storage
-  namespace: a8s
-provisioner: k8s.io/minikube-hostpath
-reclaimPolicy: Delete
-volumeBindingMode: Immediate
-EOF
 
 echo "Minikube setup complete!"
 echo "Cluster status:"

@@ -13,6 +13,10 @@ spec:
       labels:
         app: claude-environment
     spec:
+      volumes:
+      - name: storage-volume
+        persistentVolumeClaim:
+          claimName: a8s-pvc
       containers:
       - name: claude-environment
         image: a8s-claude:latest
@@ -23,6 +27,9 @@ spec:
             secretKeyRef:
               name: anthropic-credentials
               key: api-key
+        volumeMounts:
+        - mountPath: "/data"
+          name: storage-volume
         ports:
         - containerPort: 5900
           name: vnc
@@ -94,4 +101,4 @@ spec:
           service:
             name: claude-environment-service
             port:
-              name: api 
+              name: api
