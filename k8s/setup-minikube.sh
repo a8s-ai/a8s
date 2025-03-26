@@ -52,19 +52,6 @@ kubectl create namespace a8s --dry-run=client -o yaml | kubectl apply -f -
 # Set the default namespace for kubectl
 kubectl config set-context --current --namespace=a8s
 
-# Create a basic storage class
-echo "Creating storage class..."
-cat <<EOF | kubectl apply -f -
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: a8s-storage
-  namespace: a8s
-provisioner: k8s.io/minikube-hostpath
-reclaimPolicy: Delete
-volumeBindingMode: Immediate
-EOF
-
 echo "Minikube setup complete!"
 echo "Cluster status:"
 minikube status
