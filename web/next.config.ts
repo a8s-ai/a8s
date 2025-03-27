@@ -12,6 +12,14 @@ const nextConfig: NextConfig = {
     ],
   },
   output: 'standalone',
+  rewrites: async () => {
+    return [
+      {
+        source: '/:host*/websockify',
+        destination: 'http://:host*:6080/websockify',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
