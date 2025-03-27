@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { genSaltSync, hashSync } from 'bcrypt-ts';
-import { and, asc, desc, eq, gt, gte, inArray } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, gte, inArray, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
@@ -35,12 +35,23 @@ export async function getUser(email: string): Promise<Array<User>> {
   }
 }
 
+export async function getUserById(id: string): Promise<Array<User>> {
+  try {
+    return await db.select().from(user).where(eq(user.id, id));
+  } catch (error) {
+    console.error('Failed to get user from database');
+    throw error;
+  }
+}
+
 export async function createUser(email: string, password: string) {
   const salt = genSaltSync(10);
   const hash = hashSync(password, salt);
 
   try {
-    return await db.insert(user).values({ email, password: hash });
+    return await db
+      .insert(user)
+      .values({ email, password: hash, createdAt: new Date() });
   } catch (error) {
     console.error('Failed to create user in database');
     throw error;
@@ -346,6 +357,45 @@ export async function updateChatVisiblityById({
     return await db.update(chat).set({ visibility }).where(eq(chat.id, chatId));
   } catch (error) {
     console.error('Failed to update chat visibility in database');
+    throw error;
+  }
+}
+
+export async function getUsersWithPagination({
+  page = 1,
+  limit = 10,
+}: {
+  page?: number;
+  limit?: number;
+}) {
+  try {
+    const offset = (page - 1) * limit;
+
+    return await db
+      .select({
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+      })
+      .from(user)
+      .limit(limit)
+      .offset(offset);
+  } catch (error) {
+    console.error('Failed to get users with pagination from database');
+    throw error;
+  }
+}
+
+export async function getUsersCount() {
+  try {
+    const [result] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(user);
+
+    return Number(result.count);
+  } catch (error) {
+    console.error('Failed to get users count from database');
     throw error;
   }
 }

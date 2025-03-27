@@ -12,9 +12,7 @@ export const Overview = () => {
       transition={{ delay: 0.5 }}
     >
       <div className="rounded-xl p-6 flex flex-col gap-8 leading-relaxed text-center max-w-xl">
-        <p className="text-4xl font-bold">
-          Agent8s
-        </p>
+        <p className="text-4xl font-bold">Agent8s</p>
         <p>
           Agent8s is an{' '}
           <Link
@@ -24,9 +22,10 @@ export const Overview = () => {
           >
             open source
           </Link>{' '}
-          platform that enables interaction with AI agents through a chat interface while providing 
-          access to remote desktop environments that agents can control. The system supports parallel 
-          agent operations, state preservation, and direct user intervention.
+          platform that enables interaction with AI agents through a chat
+          interface while providing access to remote desktop environments that
+          agents can control. The system supports parallel agent operations,
+          state preservation, and direct user intervention.
         </p>
         <p>
           You can learn more about the Agent8s by visiting the{' '}
