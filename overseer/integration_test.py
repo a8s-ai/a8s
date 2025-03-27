@@ -124,7 +124,7 @@ def build_and_load_docker_image() -> bool:
     try:
         build_script = "../k8s/build-local-image.sh"
         print("Building Docker image...")
-        exit_code, stdout, stderr = run_command(build_script, check=True)
+        exit_code, stdout, stderr = run_command(build_script, check=True, timeout=300)
         if exit_code != 0:
             print_error(f"Error building Docker image: {stderr}")
             return False
@@ -132,7 +132,7 @@ def build_and_load_docker_image() -> bool:
         
         build_script = "../k8s/setup-minikube.sh"
         print("Running Minikube loading...")
-        exit_code, stdout, stderr = run_command(build_script, check=True)
+        exit_code, stdout, stderr = run_command(build_script, check=True, timeout=300)
         if exit_code != 0:
             print_error(f"Error Pushing Docker image: {stderr}")
             return False
