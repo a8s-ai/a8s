@@ -476,6 +476,56 @@ def test_get_deployment_status(deployment_id: str) -> bool:
         print_error(f"Error testing get deployment status: {e}")
         return False
 
+def test_get_all_deployments() -> bool:
+    """Test getting all deployments.
+
+    Returns:
+        True if the test passed, False otherwise.
+    """
+    print_step("Testing get all deployments endpoint")
+    try:
+        # Get all deployments without status filter
+        response = httpx.get(f"{OVERSEER_URL}/deployments/all")
+        
+        if response.status_code != 200:
+            print_error(f"Get all deployments failed with status code {response.status_code}")
+            print(f"Response: {response.text}")
+            return False
+        
+        data = response.json()
+        if not isinstance(data, list):
+            print_error("Response is not a list of deployments")
+            return False
+        
+        # Optional: Validate deployment structure 
+        if data:
+            first_deployment = data[0]
+            required_keys = ["id", "status", "type", "message"]
+            for key in required_keys:
+                if key not in first_deployment:
+                    print_error(f"Missing {key} in deployment data")
+                    return False
+        
+        print_success(f"Get all deployments passed. Found {len(data)} deployments")
+        
+        # Optional: Test with status filter
+        response_filtered = httpx.get(f"{OVERSEER_URL}/deployments/all?status=RUNNING")
+        if response_filtered.status_code != 200:
+            print_error(f"Get filtered deployments failed with status code {response_filtered.status_code}")
+            return False
+        
+        filtered_data = response_filtered.json()
+        if filtered_data:
+            for dep in filtered_data:
+                if dep['status'] != 'RUNNING':
+                    print_error("Filtered deployments contain non-running status")
+                    return False
+        
+        print_success("Get filtered deployments passed")
+        return True
+    except Exception as e:
+        print_error(f"Error testing get all deployments: {e}")
+        return False
 
 def wait_for_deployment_running(deployment_id: str, timeout: int = TEST_TIMEOUT) -> bool:
     """Wait for a deployment to be running.
@@ -617,6 +667,9 @@ def run_integration_tests() -> bool:
     if not test_get_deployment(deployment_id):
         return False
     
+    if not test_get_all_deployments():
+        return False
+
     # Test get deployment status
     if not test_get_deployment_status(deployment_id):
         return False
