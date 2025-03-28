@@ -37,6 +37,12 @@ if ! docker image inspect a8s-web:latest &> /dev/null; then
     exit 1
 fi
 
+if ! docker image inspect a8s-overseer:latest &> /dev/null; then
+    echo "Error: Local Docker image 'a8s-overseer:latest' not found."
+    echo "Please build the images first using ./build-local-image.sh"
+    exit 1
+fi
+
 # Start minikube with appropriate resources
 echo "Starting minikube cluster..."
 minikube start --cpus=4 --memory=8192 --disk-size=20g
@@ -45,6 +51,7 @@ minikube start --cpus=4 --memory=8192 --disk-size=20g
 echo "Loading local Docker images into minikube..."
 minikube image load a8s-claude:latest
 minikube image load a8s-web:latest
+minikube image load a8s-overseer:latest
 
 # Enable necessary addons
 echo "Enabling necessary addons..."

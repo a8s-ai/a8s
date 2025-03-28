@@ -129,3 +129,9 @@ export function formatDate(date: Date) {
     addSuffix: true,
   });
 }
+
+export const isValidServiceUrl = (url: string): boolean => {
+  // Basic validation for k8s service URL format
+  const k8sServicePattern = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*\.svc\.cluster\.local$/;
+  return k8sServicePattern.test(url);
+};

@@ -19,6 +19,7 @@ load_dotenv()
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    stream=sys.stdout  # Ensure logs go to stdout for Kubernetes
 )
 logger = logging.getLogger(__name__)
 
