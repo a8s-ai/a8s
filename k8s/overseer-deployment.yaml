@@ -6,14 +6,7 @@ metadata:
 data:
   OVERSEER_HOST: "0.0.0.0"
   OVERSEER_PORT: "8000"
-  OVERSEER_WORKERS: "2"
   OVERSEER_LOG_LEVEL: "info"
-  # Uvicorn logging settings
-  UVICORN_ACCESS_LOG: "true"
-  UVICORN_LOG_LEVEL: "info"
-  # Python logging settings
-  PYTHONUNBUFFERED: "1"
-  LOG_FORMAT: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 ---
 apiVersion: v1
 kind: Service
@@ -24,7 +17,8 @@ spec:
   selector:
     app: overseer
   ports:
-    - port: 8000
+    - name: api
+      port: 8000
       targetPort: 8000
   type: ClusterIP
 ---
@@ -46,43 +40,20 @@ spec:
       containers:
         - name: overseer
           image: a8s-overseer:latest
-          imagePullPolicy: Never  # Use local image
+          imagePullPolicy: Never
           ports:
             - containerPort: 8000
+              name: api
           envFrom:
             - configMapRef:
                 name: overseer-config
-          env:
-            - name: PYTHONUNBUFFERED
-              value: "1"
           resources:
             requests:
-              cpu: "200m"
-              memory: "256Mi"
+              memory: "64Mi"
+              cpu: "250m"
             limits:
-              cpu: "1000m"
-              memory: "1Gi"
-          readinessProbe:
-            httpGet:
-              path: /docs  # FastAPI automatically provides /docs
-              port: 8000
-            initialDelaySeconds: 10
-            periodSeconds: 5
-          livenessProbe:
-            httpGet:
-              path: /docs
-              port: 8000
-            initialDelaySeconds: 15
-            periodSeconds: 10
-          # Configure container logging
-          terminationMessagePolicy: FallbackToLogsOnError
-          # Mount log volume if needed
-          volumeMounts:
-            - name: log-volume
-              mountPath: /app/logs
-      volumes:
-        - name: log-volume
-          emptyDir: {}
+              memory: "128Mi"
+              cpu: "500m"
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -90,15 +61,45 @@ metadata:
   name: overseer-ingress
   namespace: a8s
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
     - http:
         paths:
-          - path: /overseer/api
+          - path: /overseer(/|$)(.*)
             pathType: Prefix
             backend:
               service:
                 name: overseer-service
                 port:
-                  number: 8000 
+                  name: api 
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: overseer-deployment-role
+  namespace: a8s
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: overseer-deployment-rolebinding
+  namespace: a8s
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: a8s
+roleRef:
+  kind: Role
+  name: overseer-deployment-role
+  apiGroup: rbac.authorization.k8s.io 
