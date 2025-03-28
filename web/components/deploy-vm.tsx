@@ -123,7 +123,11 @@ export function DeployVMResult({ result }: { result: DeploymentResponse }) {
 
     // Fallback to localhost:8080 if no URL could be determined
     if (!vncUrl) {
-      vncUrl = 'http://localhost:8080/';
+      if (result.id) {
+        vncUrl = `${result.id}.a8s.svc.cluster.local`;
+      } else {
+        vncUrl = 'http://localhost:8080/';
+      }
     }
 
     // Set VM connection state

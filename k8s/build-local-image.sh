@@ -24,6 +24,13 @@ if [ ! -f "../web/Dockerfile" ]; then
     exit 1
 fi
 
+# Check if the Overseer Dockerfile exists
+if [ ! -f "../overseer/Dockerfile" ]; then
+    echo "Error: Dockerfile not found in ../overseer/"
+    echo "Please make sure you're running this script from the k8s directory."
+    exit 1
+fi
+
 # Build the Claude environment image
 echo "Building Docker image 'a8s-claude' from ../environments/claude/Dockerfile..."
 docker build -t a8s-claude:latest -f ../environments/claude/Dockerfile ../environments/claude
@@ -31,6 +38,10 @@ docker build -t a8s-claude:latest -f ../environments/claude/Dockerfile ../enviro
 # Build the web application image
 echo "Building Docker image 'a8s-web' from ../web/Dockerfile..."
 docker build -t a8s-web:latest -f ../web/Dockerfile ../web
+
+# Build the overseer service image
+echo "Building Docker image 'a8s-overseer' from ../overseer/Dockerfile..."
+docker build -t a8s-overseer:latest -f ../overseer/Dockerfile ../overseer
 
 echo "Docker images built successfully!"
 echo "You can now run ./setup-minikube.sh to set up the Kubernetes infrastructure." 

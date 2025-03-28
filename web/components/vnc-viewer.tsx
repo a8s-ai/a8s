@@ -1,5 +1,6 @@
 import { VncScreen } from 'react-vnc';
 import { useRef, useEffect, useState, CSSProperties } from 'react';
+import { isValidServiceUrl } from '@/lib/utils';
 
 const defaultStyles = {
   container: {
@@ -35,12 +36,6 @@ interface VNCViewerProps {
   };
 }
 
-const isValidServiceUrl = (url: string): boolean => {
-  // Basic validation for k8s service URL format
-  const k8sServicePattern = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*\.svc\.cluster\.local$/;
-  return k8sServicePattern.test(url);
-};
-
 const VNCViewer: React.FC<VNCViewerProps> = ({
   serviceUrl,
   styles = {},
@@ -54,9 +49,9 @@ const VNCViewer: React.FC<VNCViewerProps> = ({
       setError('Service URL is required');
       return;
     }
-
+    
     if (!isValidServiceUrl(serviceUrl)) {
-      setError('Invalid service URL format. Expected format: service-name.namespace.svc.cluster.local');
+      setError('Invalid connection URL format. Expected format: service-name.namespace.svc.cluster.local');
       return;
     }
 

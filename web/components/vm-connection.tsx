@@ -3,6 +3,8 @@ import { memo, useState, useEffect, useMemo } from 'react';
 import { useWindowSize } from 'usehooks-ts';
 import { useVMConnection } from '@/hooks/use-vm-connection';
 import { useSidebar } from './ui/sidebar';
+import VNCViewer from './vnc-viewer';
+import { isValidServiceUrl } from '@/lib/utils';
 
 // VM Connection Close Button Component
 export function VMConnectionCloseButton() {
@@ -37,60 +39,32 @@ export function VMConnectionCloseButton() {
 function PureVMConnection() {
   const { vmConnection } = useVMConnection();
   const { open: isSidebarOpen } = useSidebar();
-  const [isIframeLoading, setIsIframeLoading] = useState(true);
-  const [hasIframeError, setHasIframeError] = useState(false);
 
   const { width: windowWidth, height: windowHeight } = useWindowSize();
   const isMobile = windowWidth ? windowWidth < 768 : false;
 
-  // Validate VNC URL
-  const { isValidUrl, errorMessage } = useMemo(() => {
+  // Extract service URL from VNC URL
+  const { serviceUrl, errorMessage } = useMemo(() => {
     if (!vmConnection.vncUrl) {
       return {
-        isValidUrl: false,
+        serviceUrl: null,
         errorMessage: 'No VNC URL provided. Please try connecting again.',
       };
     }
 
-    try {
-      const url = new URL(vmConnection.vncUrl);
-      const isHttp = url.protocol === 'http:' || url.protocol === 'https:';
-
-      if (!isHttp) {
-        return {
-          isValidUrl: false,
-          errorMessage: 'Invalid URL protocol. Must be http or https.',
-        };
-      }
-
+    // Since vncUrl is already in service URL format, just validate it
+    if (!isValidServiceUrl(vmConnection.vncUrl)) {
       return {
-        isValidUrl: true,
-        errorMessage: '',
-      };
-    } catch (e) {
-      return {
-        isValidUrl: false,
-        errorMessage: 'Invalid URL format. Please try connecting again.',
+        serviceUrl: null,
+        errorMessage: 'Invalid service URL format. Expected format: service-name.namespace.svc.cluster.local',
       };
     }
+
+    return {
+      serviceUrl: vmConnection.vncUrl,
+      errorMessage: '',
+    };
   }, [vmConnection.vncUrl]);
-
-  // Reset iframe states when connection becomes visible
-  useEffect(() => {
-    if (vmConnection.isVisible) {
-      setIsIframeLoading(true);
-      setHasIframeError(false);
-    }
-  }, [vmConnection.isVisible]);
-
-  const handleIframeLoad = () => {
-    setIsIframeLoading(false);
-  };
-
-  const handleIframeError = () => {
-    setIsIframeLoading(false);
-    setHasIframeError(true);
-  };
 
   return (
     <AnimatePresence>
@@ -198,18 +172,7 @@ function PureVMConnection() {
             </div>
 
             <div className="dark:bg-muted bg-background h-full overflow-hidden !max-w-full relative flex items-center justify-center">
-              {isIframeLoading && isValidUrl && (
-                <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="size-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                    <div className="text-sm text-muted-foreground">
-                      Loading VM interface...
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {(!isValidUrl || hasIframeError) && (
+              {!serviceUrl && (
                 <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
                   <div className="flex flex-col items-center gap-2 max-w-md text-center p-4">
                     <svg
@@ -230,23 +193,48 @@ function PureVMConnection() {
                       Failed to load VM interface
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {!isValidUrl
-                        ? errorMessage
-                        : 'Make sure the VM is running properly and try again.'}
+                      {errorMessage}
                     </div>
                   </div>
                 </div>
               )}
 
-              {isValidUrl && (
-                <iframe
-                  src={vmConnection.vncUrl}
-                  title="VM Interface"
-                  className="size-full border-0"
-                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-                  loading="lazy"
-                  onLoad={handleIframeLoad}
-                  onError={handleIframeError}
+              {serviceUrl && (
+                <VNCViewer
+                  serviceUrl={serviceUrl}
+                  styles={{
+                    container: {
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    },
+                    screen: {
+                      width: '100%',
+                      height: '100%',
+                      maxWidth: '100%',
+                      maxHeight: '100%',
+                    },
+                    error: {
+                      position: 'absolute',
+                      inset: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: 'var(--background)',
+                      padding: '1rem',
+                    },
+                    loading: {
+                      position: 'absolute',
+                      inset: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: 'var(--background)',
+                      padding: '1rem',
+                    },
+                  }}
                 />
               )}
             </div>

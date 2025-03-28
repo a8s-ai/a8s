@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: overseer-config
+  namespace: a8s
+data:
+  OVERSEER_HOST: "0.0.0.0"
+  OVERSEER_PORT: "8000"
+  OVERSEER_WORKERS: "2"
+  OVERSEER_LOG_LEVEL: "info"
+  # Uvicorn logging settings
+  UVICORN_ACCESS_LOG: "true"
+  UVICORN_LOG_LEVEL: "info"
+  # Python logging settings
+  PYTHONUNBUFFERED: "1"
+  LOG_FORMAT: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: overseer-service
+  namespace: a8s
+spec:
+  selector:
+    app: overseer
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: overseer-deployment
+  namespace: a8s
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: overseer
+  template:
+    metadata:
+      labels:
+        app: overseer
+    spec:
+      containers:
+        - name: overseer
+          image: a8s-overseer:latest
+          imagePullPolicy: Never  # Use local image
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: overseer-config
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /docs  # FastAPI automatically provides /docs
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /docs
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          # Configure container logging
+          terminationMessagePolicy: FallbackToLogsOnError
+          # Mount log volume if needed
+          volumeMounts:
+            - name: log-volume
+              mountPath: /app/logs
+      volumes:
+        - name: log-volume
+          emptyDir: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: overseer-ingress
+  namespace: a8s
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /overseer/api
+            pathType: Prefix
+            backend:
+              service:
+                name: overseer-service
+                port:
+                  number: 8000 
